@@ -2,11 +2,18 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/store";
-import { useLoginMutation } from "../../store/features/userSlice";
+import { useLoginMutation, useRegisterMutation } from "../../store/features/userSlice";
 import { useNavigate } from "react-router-dom";
 import { setCredentials } from "../../store/features/authSlice";
 
-const initialState = { username: "", email: "", password: "" };
+const initialState = {
+  username: "",
+  email: "",
+  password: "",
+  fullName: "",
+  dateOfBirth: "",
+  role: "",
+};
 
 const AuthPage = () => {
   const logo =
@@ -16,20 +23,27 @@ const AuthPage = () => {
   const [isSignup, setIsSignup] = useState(false);
   const switchMode = () => {
     setIsSignup((prevIsSignup) => !prevIsSignup);
-    setForm({ username: "", password: "", email: ""});
+    setForm({
+      username: "",
+      password: "",
+      email: "",
+      fullName: "",
+      dateOfBirth: "2002-01-01",
+      role: "USER",
+    });
   };
 
-  const { userInfo } = useAppSelector((state)=> state.auth)
+  const { userInfo } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [login, { isLoading }] = useLoginMutation();
+  const [register] = useRegisterMutation();
 
-
-  useEffect(()=> {
-    if (userInfo){
-      navigate('/')
+  useEffect(() => {
+    if (userInfo) {
+      navigate("/");
     }
-  }, [navigate, userInfo])
+  }, [navigate, userInfo]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -37,9 +51,16 @@ const AuthPage = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const res = await login({ ...form}).unwrap();
-      dispatch(setCredentials(res))
-      navigate('/');
+      if(isSignup){
+        const result = await register({...form}).unwrap();
+        dispatch(setCredentials(result));
+        navigate("/");
+      } else {
+        const res = await login({ ...form }).unwrap();
+        dispatch(setCredentials(res));
+        navigate("/");
+
+      }
     } catch (error) {
       console.error(error);
     }
@@ -56,11 +77,9 @@ const AuthPage = () => {
           />
         </div>
         <h2 className="text-2xl font-semibold mb-4">
-        {isSignup ? " Daftar": " Masuk"}
+          {isSignup ? " Daftar" : " Masuk"}
         </h2>
-        <form onSubmit={handleSubmit} >
-
-
+        <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
               htmlFor="username"
@@ -79,22 +98,41 @@ const AuthPage = () => {
           </div>
 
           {isSignup && (
-            <div className="mb-4">
-              <label
-                htmlFor="email"
-                className="block text-sm font-normal text-slate-300"
-              >
-                Email
-              </label>
-              <Input
-                onChange={handleChange}
-                type="text"
-                id="email"
-                name="email"
-                className="mt-1 p-2 w-full bg-slate-800 border rounded-md focus:ring focus:ring-indigo-200"
-                placeholder="Your email"
-              />
-            </div>
+            <>
+              <div className="mb-4">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-normal text-slate-300"
+                >
+                  Email
+                </label>
+                <Input
+                  onChange={handleChange}
+                  type="text"
+                  id="email"
+                  name="email"
+                  className="mt-1 p-2 w-full bg-slate-800 border rounded-md focus:ring focus:ring-indigo-200"
+                  placeholder="Your email"
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="fullname"
+                  className="block text-sm font-normal text-slate-300"
+                >
+                  Fullname
+                </label>
+                <Input
+                  onChange={handleChange}
+                  type="text"
+                  id="fullname"
+                  name="fullname"
+                  className="mt-1 p-2 w-full bg-slate-800 border rounded-md focus:ring focus:ring-indigo-200"
+                  placeholder="Your fullname"
+                />
+              </div>
+              
+            </>
           )}
 
           <div className="mb-6">
@@ -115,15 +153,15 @@ const AuthPage = () => {
           </div>
           <Button
             type="submit"
-            variant={isSignup? `primary` : `outline`}
+            variant={isSignup ? `primary` : `outline`}
             className=" px-4 py-2 rounded-md"
           >
-            {isSignup ? " Daftar": " Masuk"}
+            {isSignup ? " Daftar" : " Masuk"}
           </Button>
           <p className=" text-slate-300 mt-4">
             {isSignup ? "Sudah punya akun ?" : "Belum punya akun ?"}
             <span onClick={switchMode} className=" text-green-600 font-medium">
-              {isSignup ? " Masuk": " Daftar"}
+              {isSignup ? " Masuk" : " Daftar"}
             </span>
           </p>
         </form>

@@ -61,9 +61,8 @@ const Header = ({ className, show }: HeaderProps) => {
                 {!userInfo && (
                   <>
                     <Link to={"/auth"}>
-                      <Button variant={"outline"}>Login</Button>
+                      <Button variant={"primary"}>Login</Button>
                     </Link>
-                    <Button onClick={handleLogout} variant={"primary"}>Daftar</Button>
                   </>
                 )}
                 {userInfo && 
