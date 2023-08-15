@@ -22,7 +22,8 @@ const VideoDetailPage = () => {
   const { id } = useParams();
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((state) => state.auth);
-  const initialSocket = io("http://localhost:3000", {
+  const beUrl = import.meta.env.VITE_BE_URL || 'https://fast-slave-production.up.railway.app';
+  const initialSocket = io(beUrl, {
     query: {
       userId: currentUser?.userInfo?.user.id,
       videoId: id,
